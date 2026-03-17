@@ -9,7 +9,7 @@
 |2.| Nicha     Vikromrotjananan (Baitei) |6822040363|
 |3.| Vinnie    Chuawanta (Vinnie フィンニ) |25M41257|
 |4.| Satchukan Sinsuwanrak (Nampai) |6814552850|
-|5.| ....|....|
+|5.| Jittarin Chaivong (Poom)|6822040348|
 
 ## **Overview:**
 .....
