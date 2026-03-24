@@ -21,6 +21,11 @@
 .....
 ## **User Stories:**
 .....
+## Software models
+### Software stack
+![Stack](.....jpg)
+### Sequence diagram
+![Sequence](....jpg)
 ## Future Work:
 .....
 ## Conclusion
