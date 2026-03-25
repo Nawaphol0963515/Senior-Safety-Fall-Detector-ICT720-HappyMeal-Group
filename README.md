@@ -1,6 +1,7 @@
 # **Project Title: Senior Safety Fall Detector**
 ## **Subject: ICT720, 2026**
 ## **Group Name: HappyMeal**
+<img width="1363" height="628" alt="スクリーンショット 2026-03-25 15 00 17" src="https://github.com/user-attachments/assets/cc2f0570-ced7-4495-b623-22917aadc958" />
 
 ## **Member**
 |No.| Name                                | ID               |
