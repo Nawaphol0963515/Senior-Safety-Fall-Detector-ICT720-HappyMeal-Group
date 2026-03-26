@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -56,6 +56,16 @@ export default function SensorChart({ data }: SensorChartProps) {
     const d = new Date();
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   });
+
+  // Auto-slide time window: update start/end to follow current time
+  useEffect(() => {
+    if (tab === "today") {
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+      setStartHour(`${String(oneHourAgo.getHours()).padStart(2, "0")}:${String(oneHourAgo.getMinutes()).padStart(2, "0")}`);
+      setEndHour(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
+    }
+  }, [data, tab]);
 
   // Zoom state for ReferenceArea
   const [refAreaLeft, setRefAreaLeft] = useState<string | null>(null);

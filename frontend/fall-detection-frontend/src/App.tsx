@@ -3,6 +3,10 @@ import StatusBadge from "@/components/StatusBadge";
 import FallCounter from "@/components/FallCounter";
 import SensorChart from "@/components/SensorChart";
 import DailyFallBarChart from "@/components/DailyFallBarChart";
+import CameraModal from "@/components/CameraModal";
+
+// ⚠️ Change this to your ESP32-CAM's IP address
+const ESP32_STREAM_URL = "http://192.168.1.100:81/stream";
 import {
   fetchSensorData,
   fetchDailyStats,
@@ -16,6 +20,7 @@ export default function App() {
   const [latest, setLatest] = useState<SensorReading | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -46,8 +51,8 @@ export default function App() {
   useEffect(() => {
     loadData();
 
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(loadData, 30_000);
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(loadData, 5_000);
     return () => clearInterval(interval);
   }, [loadData]);
 
@@ -55,7 +60,7 @@ export default function App() {
   const fallCount = sensorData.filter((d) => d.prediction === 1).length;
 
   const handleVideoClick = () => {
-    alert("📹 Opening fall recording...");
+    setShowCamera(true);
   };
 
   return (
@@ -155,6 +160,13 @@ export default function App() {
           ICT720 — HappyMeal Group • Senior Safety Fall Detector
         </p>
       </footer>
+
+      {/* Camera Modal */}
+      <CameraModal
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        streamUrl={ESP32_STREAM_URL}
+      />
     </div>
   );
 }

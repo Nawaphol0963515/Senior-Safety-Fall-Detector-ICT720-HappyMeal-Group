@@ -20,7 +20,7 @@ CORS(app)  # Allow frontend (localhost:5173) to call this API
 # ---------------------------------------------------------------------------
 # Data source: JSON file (switch to MongoDB when ready)
 # ---------------------------------------------------------------------------
-USE_MONGODB = False  # Set to True when MongoDB Atlas IP whitelist is configured
+USE_MONGODB = True  # Reading from MongoDB Atlas
 
 MOCK_DATA_PATH = os.path.join(os.path.dirname(__file__), "mock_sensor_data.json")
 
@@ -197,6 +197,6 @@ def get_latest():
 # Run
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    print("🚀 Starting Fall Detection API on http://localhost:5001")
+    print("🚀 Starting Fall Detection API on http://localhost:5002")
     print(f"   Data source: {'MongoDB' if USE_MONGODB else 'JSON file'}")
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5002, debug=True)
