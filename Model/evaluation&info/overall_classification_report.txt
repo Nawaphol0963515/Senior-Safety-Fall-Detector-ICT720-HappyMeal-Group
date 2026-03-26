@@ -1,0 +1,15 @@
+Best threshold selected by F1: 0.25000000000000006
+
+Confusion Matrix:
+[[966 123]
+ [118 140]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Not Fall       0.89      0.89      0.89      1089
+        Fall       0.53      0.54      0.54       258
+
+    accuracy                           0.82      1347
+   macro avg       0.71      0.71      0.71      1347
+weighted avg       0.82      0.82      0.82      1347
