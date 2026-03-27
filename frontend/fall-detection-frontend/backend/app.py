@@ -19,7 +19,7 @@ app = Flask(__name__)
 CORS(app)  # Allow frontend (localhost:5173) to call this API
 
 # ⚠️ Change this to your ESP32-CAM's IP address
-ESP32_CAM_IP = os.environ.get("ESP32_CAM_IP", "192.168.1.100")
+ESP32_CAM_IP = os.environ.get("ESP32_CAM_IP", "172.20.10.2")
 ESP32_CAM_BASE = f"http://{ESP32_CAM_IP}"
 
 # ---------------------------------------------------------------------------
