@@ -7,8 +7,8 @@
 // ============================================================
 // CONFIGURE THESE FOR YOUR NETWORK
 // ============================================================
-#define WIFI_SSID       "S24u" // change wifi here
-#define WIFI_PASSWORD   "poom32785" // change wifi here
+#define WIFI_SSID       "𝕭𝖊𝖓𝖙𝖔⚽☯️➕" // change wifi here
+#define WIFI_PASSWORD   "Bento-285" // change wifi here
 
 // MQTT Broker — use the same broker your team's Client (Vinnie) publishes to
 #define MQTT_BROKER     "broker.hivemq.com"   // or your team's broker IP
