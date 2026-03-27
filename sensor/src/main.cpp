@@ -6,12 +6,11 @@
 #include <ArduinoJson.h>
 
 // Internet connectivity
-const char *WIFI_SSID = "𝕭𝖊𝖓𝖙𝖔⚽☯️➕"; // SSID of AP that has FTM Enabled
-const char *WIFI_PASSWD = "Bento-285";  // STA Password
+const char *WIFI_SSID = "𝕭𝖊𝖓𝖙𝖔⚽☯️➕";
+const char *WIFI_PASSWD = "Bento-285";
 
 const char *MQTT_BROKER = "broker.emqx.io";
 const char *PUB_TOPIC = "taist/aiot/happymeal/data";
-const char *SUB_TOPIC = "taist/aiot/happymeal/cmd";
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length);
 bool upload_data(float ax, float ay, float az, float gx, float gy, float gz);
@@ -57,23 +56,25 @@ void setup(void) {
     delay(100);
   }
   Serial.println("WiFi connected");
+
+  // MQTT setup
+  mqttClient.setServer(MQTT_BROKER, 1883);
+  mqttClient.setCallback(mqtt_callback);
 }
 
 bool upload_data(float ax, float ay, float az, float gx, float gy, float gz) {
   Serial.println("Start uploading");
 
-  // MQTT
-  mqttClient.setServer(MQTT_BROKER, 1883);
-  mqttClient.setCallback(mqtt_callback);
-  char dev_id[64];
-  randomSeed(esp_random());
-  sprintf(dev_id, "DEV%d", random());
-  if (!mqttClient.connect(dev_id)) {
-    return false;
+  // MQTT check connection
+  if (!mqttClient.connected()) {
+    char dev_id[64];
+    randomSeed(esp_random());
+    sprintf(dev_id, "DEV%d", random());
+    if (!mqttClient.connect(dev_id)) {
+      return false;
+    }
+    Serial.println("MQTT connected");
   }
-  //mqttClient.subscribe(SUB_TOPIC);
-  //delay(500); // Delay before
-  Serial.println("MQTT connected");
 
   // JSON
   JsonDocument json_doc;
@@ -88,11 +89,9 @@ bool upload_data(float ax, float ay, float az, float gx, float gy, float gz) {
   
   serializeJson(json_doc, json_txt);
   mqttClient.publish(PUB_TOPIC, json_txt);
-  mqttClient.loop();
-  //delay(500); // Delay after
-  mqttClient.disconnect();
+  
   Serial.println(json_txt);
-  delay(100);
+  
   return true;
 }
 
@@ -100,6 +99,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 }
 
 void loop() {
+  mqttClient.loop();
   if(mpu.getMotionInterruptStatus()) {
     /* Get new sensor events with the readings */
     sensors_event_t a, g, temp;
