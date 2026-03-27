@@ -35,21 +35,21 @@ export default function StatusBadge({ isFall, onVideoClick, cameraLoading = fals
         {isFall ? "⚠ FALL DETECTED" : "NORMAL"}
       </div>
 
-      {/* Camera Button — always clickable */}
+      {/* Camera Button — disabled when normal, green when fall */}
       <button
         onClick={onVideoClick}
-        disabled={cameraLoading}
+        disabled={cameraLoading || !isFall}
         className={`
           group relative flex items-center justify-center w-14 h-14 rounded-xl
           transition-all duration-300
           ${cameraLoading
-            ? "bg-accent-blue/15 border border-accent-blue/40 text-accent-blue cursor-wait"
-            : isFall
-              ? "bg-accent-red/15 border border-accent-red/40 text-accent-red hover:bg-accent-red/25 hover:scale-105 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] cursor-pointer"
-              : "bg-accent-blue/15 border border-accent-blue/40 text-accent-blue hover:bg-accent-blue/25 hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] cursor-pointer"
+            ? "bg-accent-green/15 border border-accent-green/40 text-accent-green cursor-wait"
+            : !isFall
+              ? "bg-dark-border/30 border border-dark-border text-dark-text-muted/40 cursor-not-allowed"
+              : "bg-accent-green/15 border border-accent-green/40 text-accent-green hover:bg-accent-green/25 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] cursor-pointer"
           }
         `}
-        title={cameraLoading ? "Starting camera..." : isFall ? "View live camera (Fall detected!)" : "Open live camera"}
+        title={cameraLoading ? "Starting camera..." : isFall ? "View live camera (Fall detected!)" : "No fall detected"}
       >
         {cameraLoading ? (
           <svg className="animate-spin w-6 h-6" viewBox="0 0 24 24">
@@ -68,8 +68,8 @@ export default function StatusBadge({ isFall, onVideoClick, cameraLoading = fals
         )}
         {isFall && !cameraLoading && (
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-accent-red" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-accent-green" />
           </span>
         )}
       </button>

@@ -16,7 +16,7 @@ import {
 import type { SensorReading, DailyStats } from "@/api/client";
 
 // ⚠️ Change this to your ESP32-CAM's IP address
-const ESP32_CAM_IP = "192.168.1.100";
+const ESP32_CAM_IP = "172.20.10.2";
 const ESP32_STREAM_URL = `http://${ESP32_CAM_IP}/stream`;
 
 export default function App() {
@@ -117,19 +117,36 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Connection status */}
-            <div className={`flex items-center gap-1.5 text-xs ${error ? "text-accent-red" : "text-accent-green"}`}>
-              <span className={`w-2 h-2 rounded-full ${error ? "bg-accent-red" : "bg-accent-green"}`} />
-              {error ? "Disconnected" : "Live"}
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 border-r border-dark-border pr-6">
+              {/* Connection status */}
+              <div className={`flex items-center gap-1.5 text-xs ${error ? "text-accent-red" : "text-accent-green"}`}>
+                <span className={`w-2 h-2 rounded-full ${error ? "bg-accent-red" : "bg-accent-green"}`} />
+                {error ? "Disconnected" : "Live"}
+              </div>
+              <div className="text-sm text-dark-text-muted hidden sm:block">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
             </div>
-            <div className="text-sm text-dark-text-muted">
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+
+            {/* User Profile */}
+            <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-dark-text">Admin</p>
+                <p className="text-xs text-dark-text-muted">HappyMeal Group</p>
+              </div>
+              <div className="w-10 h-10 rounded-full border-2 border-dark-border overflow-hidden bg-dark-bg">
+                <img
+                  src="https://api.dicebear.com/7.x/notionists/svg?seed=Baitei&backgroundColor=transparent"
+                  alt="User avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
