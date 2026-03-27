@@ -69,3 +69,47 @@ export async function fetchLatest(): Promise<SensorReading | null> {
   const data = await res.json();
   return Object.keys(data).length > 0 ? data : null;
 }
+
+// ---------------------------------------------------------------------------
+// Camera Control API
+// ---------------------------------------------------------------------------
+
+export interface CameraStatus {
+  stream_active: boolean;
+  manual_stream?: boolean;
+  stream_url?: string;
+  capture_url?: string;
+  start_url?: string;
+  stop_url?: string;
+  error?: string;
+}
+
+/**
+ * Get camera status from ESP32-CAM (via backend proxy).
+ */
+export async function fetchCameraStatus(): Promise<CameraStatus> {
+  const url = `${API_BASE}/api/camera/status`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Camera API error: ${res.status}`);
+  return res.json();
+}
+
+/**
+ * Start camera stream on ESP32-CAM (via backend proxy).
+ */
+export async function startCameraStream(): Promise<{ status: string; message: string }> {
+  const url = `${API_BASE}/api/camera/start`;
+  const res = await fetch(url, { method: "POST" });
+  if (!res.ok) throw new Error(`Camera start error: ${res.status}`);
+  return res.json();
+}
+
+/**
+ * Stop camera stream on ESP32-CAM (via backend proxy).
+ */
+export async function stopCameraStream(): Promise<{ status: string; message: string }> {
+  const url = `${API_BASE}/api/camera/stop`;
+  const res = await fetch(url, { method: "POST" });
+  if (!res.ok) throw new Error(`Camera stop error: ${res.status}`);
+  return res.json();
+}

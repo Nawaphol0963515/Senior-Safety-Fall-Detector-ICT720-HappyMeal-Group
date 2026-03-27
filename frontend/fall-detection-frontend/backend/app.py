@@ -8,6 +8,7 @@ Fall Detection Backend API
 """
 import json
 import os
+import requests as http_requests
 from datetime import datetime, timezone
 from collections import defaultdict
 
@@ -16,6 +17,10 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend (localhost:5173) to call this API
+
+# ⚠️ Change this to your ESP32-CAM's IP address
+ESP32_CAM_IP = os.environ.get("ESP32_CAM_IP", "192.168.1.100")
+ESP32_CAM_BASE = f"http://{ESP32_CAM_IP}"
 
 # ---------------------------------------------------------------------------
 # Data source: JSON file (switch to MongoDB when ready)
@@ -194,9 +199,53 @@ def get_latest():
 
 
 # ---------------------------------------------------------------------------
+# Camera Control API (proxy to ESP32-CAM)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/camera/status", methods=["GET"])
+def camera_status():
+    """Get camera status from ESP32-CAM."""
+    try:
+        resp = http_requests.get(f"{ESP32_CAM_BASE}/status", timeout=5)
+        return jsonify(resp.json()), resp.status_code
+    except http_requests.exceptions.RequestException as e:
+        return jsonify({
+            "stream_active": False,
+            "error": f"Cannot reach ESP32-CAM at {ESP32_CAM_BASE}: {str(e)}"
+        }), 503
+
+
+@app.route("/api/camera/start", methods=["POST"])
+def camera_start():
+    """Start camera stream on ESP32-CAM."""
+    try:
+        resp = http_requests.get(f"{ESP32_CAM_BASE}/start-stream", timeout=5)
+        return jsonify(resp.json()), resp.status_code
+    except http_requests.exceptions.RequestException as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Cannot reach ESP32-CAM at {ESP32_CAM_BASE}: {str(e)}"
+        }), 503
+
+
+@app.route("/api/camera/stop", methods=["POST"])
+def camera_stop():
+    """Stop camera stream on ESP32-CAM."""
+    try:
+        resp = http_requests.get(f"{ESP32_CAM_BASE}/stop-stream", timeout=5)
+        return jsonify(resp.json()), resp.status_code
+    except http_requests.exceptions.RequestException as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Cannot reach ESP32-CAM at {ESP32_CAM_BASE}: {str(e)}"
+        }), 503
+
+
+# ---------------------------------------------------------------------------
 # Run
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     print("🚀 Starting Fall Detection API on http://localhost:5002")
     print(f"   Data source: {'MongoDB' if USE_MONGODB else 'JSON file'}")
+    print(f"   ESP32-CAM:   {ESP32_CAM_BASE}")
     app.run(host="0.0.0.0", port=5002, debug=True)

@@ -14,6 +14,7 @@ static PubSubClient mqtt(wifi_client);
 
 // ── State ──
 static bool stream_active = false;        // true when fall detected
+static bool manual_stream = false;        // true when manually started from UI
 static unsigned long fall_timestamp = 0;  // when the fall was detected
 #define STREAM_TIMEOUT_MS  60000         // auto-stop after 2 minutes
 
@@ -115,10 +116,34 @@ static void handle_capture() {
     esp_camera_fb_return(fb);
 }
 
-// ── HTTP: "/stream" MJPEG (only serves when stream_active) ──
+// ── HTTP: "/start-stream" manually activate camera from UI ──
+static void handle_start_stream() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    stream_active = true;
+    manual_stream = true;
+    fall_timestamp = millis();  // reset timeout
+    ESP_LOGI(TAG, ">>> MANUAL stream START from UI");
+    Serial.println("========== MANUAL STREAM ON (from UI) ==========");
+    mqtt.publish(MQTT_TOPIC_CAM, "LIVE");
+    server.send(200, "application/json", "{\"status\":\"streaming\",\"message\":\"Camera stream started\"}");
+}
+
+// ── HTTP: "/stop-stream" manually deactivate camera from UI ──
+static void handle_stop_stream() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    stream_active = false;
+    manual_stream = false;
+    ESP_LOGI(TAG, ">>> MANUAL stream STOP from UI");
+    Serial.println("========== MANUAL STREAM OFF (from UI) ==========");
+    mqtt.publish(MQTT_TOPIC_CAM, "OFF");
+    server.send(200, "application/json", "{\"status\":\"stopped\",\"message\":\"Camera stream stopped\"}");
+}
+
+// ── HTTP: "/stream" MJPEG (serves when stream_active — fall or manual) ──
 static void handle_stream() {
     if (!stream_active) {
-        server.send(503, "text/plain", "Stream not active - no fall detected");
+        server.sendHeader("Access-Control-Allow-Origin", "*");
+        server.send(503, "text/plain", "Stream not active");
         return;
     }
 
@@ -157,12 +182,16 @@ static void handle_stream() {
     }
 }
 
-// ── HTTP: "/status" JSON endpoint for Baitei's UI ──
+// ── HTTP: "/status" JSON endpoint for UI ──
 static void handle_status() {
     server.sendHeader("Access-Control-Allow-Origin", "*");
+    String ip = WiFi.localIP().toString();
     String json = "{\"stream_active\":" + String(stream_active ? "true" : "false") +
-                  ",\"stream_url\":\"http://" + WiFi.localIP().toString() + "/stream\"" +
-                  ",\"capture_url\":\"http://" + WiFi.localIP().toString() + "/capture\"}";
+                  ",\"manual_stream\":" + String(manual_stream ? "true" : "false") +
+                  ",\"stream_url\":\"http://" + ip + "/stream\"" +
+                  ",\"capture_url\":\"http://" + ip + "/capture\"" +
+                  ",\"start_url\":\"http://" + ip + "/start-stream\"" +
+                  ",\"stop_url\":\"http://" + ip + "/stop-stream\"}";
     server.send(200, "application/json", json);
 }
 
@@ -205,6 +234,8 @@ void wifi_cam_server_init() {
     server.on("/capture", handle_capture);
     server.on("/stream", handle_stream);
     server.on("/status", handle_status);
+    server.on("/start-stream", handle_start_stream);
+    server.on("/stop-stream", handle_stop_stream);
     server.begin();
     ESP_LOGI(TAG, "HTTP server started");
 
