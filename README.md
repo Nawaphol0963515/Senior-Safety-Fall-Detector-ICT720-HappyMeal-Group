@@ -33,9 +33,11 @@ A reduction in emergency response times for elderly falls, providing peace of mi
  - Tertiary: Caregivers & Medical Responders (Local care centers that can use the system's alerts and camera feeds to triage emergency responses).
 
 ## **User Stories:**
-As an elderly person living alone, I want a system that automatically calls for help if I fall and cannot get up, so I can feel safe maintaining my independence.
-As a family member living in another city or country, I want to receive an immediate notification on my phone if my parent falls, so I can ensure they get help right away.
-As a local caregiver or emergency responder, I want to view a live camera stream when an alert is triggered, so I can assess the severity of the fall and dispatch the appropriate medical assistance.
+|As a| I want to                           |So that          |
+|---|------------------------------------|-------------------|
+|Elderly person living alone| want a system that automatically calls for help if I fall and cannot get up |so I can feel safe maintaining my independence|
+|a family member living in another city or country| I want to receive an immediate notification on my phone if my parent falls |so I can ensure they get help right away|
+|a local caregiver or emergency responder|I want to view a live camera stream when an alert is triggered|so I can assess the severity of the fall and dispatch the appropriate medical assistance|
 
 ## Software models
 ### Software stack
