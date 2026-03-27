@@ -16,11 +16,11 @@
 The "Senior Safety Fall Detector" is an IoT-based monitoring system designed to protect elderly individuals living independently. By utilizing ESP32 microcontrollers equipped with MPU sensors, the system continuously monitors movement. An integrated AI model analyzes this data in real-time to distinguish between normal daily activities (like dropping a book) and critical emergencies (a human fall). Upon detecting a fall, the system immediately updates a user interface, sends out critical alerts to family members or caregivers, and activates an ESP32S3 camera stream to provide vital visual context of the incident.
 
 ## **Objectives:**
-Develop an accurate sensing mechanism: Utilize ESP32S2 and MPU sensors to accurately capture motion and orientation data.
-Implement intelligent classification: Train an AI model to analyze sensor data with high accuracy, minimizing false alarms by understanding the context of movements.
-Enable real-time communication: Establish a robust data pipeline using HTTP/MQTT to transmit data seamlessly from the client to the server.
-Provide immediate visual verification: Trigger an ESP32S3 camera stream specifically when a fall is detected to protect daily privacy while ensuring emergency visibility.
-Create an intuitive monitoring dashboard: Build a UI that clearly displays the user's current status (FALL / SAFE) for easy monitoring by family or caregivers.
+ 1. Develop an accurate sensing mechanism: Utilize ESP32S2 and MPU sensors to accurately capture motion and orientation data.
+ 2. Implement intelligent classification: Train an AI model to analyze sensor data with high accuracy, minimizing false alarms by understanding the context of movements.
+ 3. Enable real-time communication: Establish a robust data pipeline using HTTP/MQTT to transmit data seamlessly from the client to the server.
+ 4. Provide immediate visual verification: Trigger an ESP32S3 camera stream specifically when a fall is detected to protect daily privacy while ensuring emergency visibility.
+ 5. Create an intuitive monitoring dashboard: Build a UI that clearly displays the user's current status (FALL / SAFE) for easy monitoring by family or caregivers.
 
 ## **Expected Outcomes:**
 A fully integrated prototype consisting of sensor nodes, an AI processing server, and a monitoring UI.
@@ -28,9 +28,9 @@ A reliable AI classification model capable of distinguishing actual falls from b
 A reduction in emergency response times for elderly falls, providing peace of mind to families across geographical distances.
 
 ## **Stakeholder:**
-Primary: The Elderly (The direct users who require monitoring to maintain safe, independent living).
-Secondary: Family Members & Relatives (Those who need real-time peace of mind and alerts regarding their loved one's safety).
-Tertiary: Caregivers & Medical Responders (Local care centers that can use the system's alerts and camera feeds to triage emergency responses).
+ - Primary: The Elderly (The direct users who require monitoring to maintain safe, independent living).
+ - Secondary: Family Members & Relatives (Those who need real-time peace of mind and alerts regarding their loved one's safety).
+ - Tertiary: Caregivers & Medical Responders (Local care centers that can use the system's alerts and camera feeds to triage emergency responses).
 
 ## **User Stories:**
 As an elderly person living alone, I want a system that automatically calls for help if I fall and cannot get up, so I can feel safe maintaining my independence.
@@ -40,14 +40,15 @@ As a local caregiver or emergency responder, I want to view a live camera stream
 ## Software models
 ### Software stack
 Hardware layer with ESP32s/MPU6050 → Protocol layer with MQTT/HTTP → Backend layer with Python/AI Frameworks → Frontend layer with Web/App frameworks
-
+![Software Stack](.png)
 ### Sequence diagram
 Nampai's Sensor reads data → Vinnie's Client pushes to Server → Ben's AI evaluates data. IF FALL = TRUE → Poom's Camera activates & Baitei's UI updates to FALL/Triggers Alert
+![Sequence Diagram](.png)
 
 ## Future Work:
-Smart Home Integration: Allowing the system to automatically unlock the front door for emergency responders if a critical fall is detected.
-Vital Sign Monitoring: Integrating heart rate or blood oxygen sensors to provide a more comprehensive health overview during a fall event.
-Hardware Miniaturization: Refining the ESP32 and MPU setup into a comfortable, non-intrusive wearable device (like a smart belt or watch).
+ - Smart Home Integration: Allowing the system to automatically unlock the front door for emergency responders if a critical fall is detected.
+ - Vital Sign Monitoring: Integrating heart rate or blood oxygen sensors to provide a more comprehensive health overview during a fall event.
+ - Hardware Miniaturization: Refining the ESP32 and MPU setup into a comfortable, non-intrusive wearable device (like a smart belt or watch).
 
 ## Conclusion
 As Japan and the global population ages, the intersection of AI and IoT becomes crucial for senior care. The Senior Safety Fall Detector bridges the gap between independent living and necessary medical supervision. By accurately detecting falls, minimizing false alarms, and providing immediate visual context to loved ones and caregivers, this project transforms a moment of crisis and silence into a moment of swift, life-saving action.
