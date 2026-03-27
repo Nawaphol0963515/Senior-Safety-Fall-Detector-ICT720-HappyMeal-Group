@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CameraModalProps {
   isOpen: boolean;
@@ -8,6 +8,16 @@ interface CameraModalProps {
 
 export default function CameraModal({ isOpen, onClose, streamUrl }: CameraModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
+  const [streamError, setStreamError] = useState(false);
+  const [streamLoaded, setStreamLoaded] = useState(false);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setStreamError(false);
+      setStreamLoaded(false);
+    }
+  }, [isOpen]);
 
   // Close on Escape key
   useEffect(() => {
@@ -34,11 +44,11 @@ export default function CameraModal({ isOpen, onClose, streamUrl }: CameraModalP
         <div className="flex items-center justify-between px-5 py-3 border-b border-dark-border">
           <div className="flex items-center gap-2">
             <span className="flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-red opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-red" />
+              <span className={`animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full opacity-75 ${streamError ? "bg-yellow-500" : "bg-accent-red"}`} />
+              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${streamError ? "bg-yellow-500" : "bg-accent-red"}`} />
             </span>
             <h3 className="text-dark-text font-semibold text-sm">
-              Live Camera — ESP32-CAM
+              {streamError ? "Camera — Connection Error" : streamLoaded ? "Live Camera — ESP32-CAM" : "Connecting to camera..."}
             </h3>
           </div>
           <button
@@ -53,23 +63,47 @@ export default function CameraModal({ isOpen, onClose, streamUrl }: CameraModalP
 
         {/* Video stream */}
         <div className="bg-black flex items-center justify-center" style={{ aspectRatio: "4/3" }}>
+          {/* Loading spinner (shown while waiting for stream) */}
+          {!streamLoaded && !streamError && (
+            <div className="absolute flex flex-col items-center gap-3 text-dark-text-muted z-10">
+              <svg className="animate-spin h-8 w-8" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <p className="text-sm">Connecting to ESP32-CAM...</p>
+            </div>
+          )}
+
           <img
-            src={streamUrl}
+            src={streamUrl + "?" + Date.now()}
             alt="ESP32-CAM Live Stream"
-            className="w-full h-full object-contain"
-            onError={(e) => {
-              // Show fallback if stream fails
-              (e.target as HTMLImageElement).style.display = "none";
-              (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+            className={`w-full h-full object-contain ${streamError ? "hidden" : ""}`}
+            onLoad={() => setStreamLoaded(true)}
+            onError={() => {
+              setStreamError(true);
+              setStreamLoaded(false);
             }}
           />
-          <div className="hidden flex-col items-center gap-3 text-dark-text-muted">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12 opacity-30">
-              <path d="M4.5 4.5a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9a3 3 0 0 0-3-3H4.5ZM19.94 18.75l-2.69-2.69V7.94l2.69-2.69c.944-.945 2.56-.276 2.56 1.06v11.38c0 1.336-1.616 2.005-2.56 1.06Z" />
-            </svg>
-            <p className="text-sm">Cannot connect to camera</p>
-            <p className="text-xs opacity-60">Check ESP32-CAM IP and network</p>
-          </div>
+
+          {/* Error fallback */}
+          {streamError && (
+            <div className="flex flex-col items-center gap-3 text-dark-text-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-12 h-12 opacity-30">
+                <path d="M4.5 4.5a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9a3 3 0 0 0-3-3H4.5ZM19.94 18.75l-2.69-2.69V7.94l2.69-2.69c.944-.945 2.56-.276 2.56 1.06v11.38c0 1.336-1.616 2.005-2.56 1.06Z" />
+              </svg>
+              <p className="text-sm">Cannot connect to camera</p>
+              <p className="text-xs opacity-60">Check ESP32-CAM IP and make sure it's on the same network</p>
+              <button
+                onClick={() => {
+                  setStreamError(false);
+                  setStreamLoaded(false);
+                }}
+                className="mt-2 px-4 py-1.5 rounded-lg text-xs font-medium bg-accent-blue/15 text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/25 transition-all"
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

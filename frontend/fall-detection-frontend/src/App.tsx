@@ -5,14 +5,19 @@ import SensorChart from "@/components/SensorChart";
 import DailyFallBarChart from "@/components/DailyFallBarChart";
 import CameraModal from "@/components/CameraModal";
 
-// ⚠️ Change this to your ESP32-CAM's IP address
-const ESP32_STREAM_URL = "http://192.168.1.100:81/stream";
 import {
   fetchSensorData,
   fetchDailyStats,
   fetchLatest,
+  startCameraStream,
+  stopCameraStream,
+  fetchCameraStatus,
 } from "@/api/client";
 import type { SensorReading, DailyStats } from "@/api/client";
+
+// ⚠️ Change this to your ESP32-CAM's IP address
+const ESP32_CAM_IP = "192.168.1.100";
+const ESP32_STREAM_URL = `http://${ESP32_CAM_IP}/stream`;
 
 export default function App() {
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);
@@ -21,6 +26,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -59,8 +66,36 @@ export default function App() {
   const isFall = latest?.prediction === 1;
   const fallCount = sensorData.filter((d) => d.prediction === 1).length;
 
-  const handleVideoClick = () => {
-    setShowCamera(true);
+  // Handle camera button click — send start-stream request to ESP32-CAM
+  const handleVideoClick = async () => {
+    setCameraLoading(true);
+    setCameraError(null);
+    try {
+      // Send start command to ESP32-CAM via backend proxy
+      await startCameraStream();
+      // Small delay to let the ESP32-CAM initialize the stream
+      await new Promise((r) => setTimeout(r, 500));
+      setShowCamera(true);
+    } catch (err) {
+      console.error("Failed to start camera:", err);
+      setCameraError(
+        err instanceof Error ? err.message : "Failed to start camera"
+      );
+      // Still show the modal so user can see the error & retry
+      setShowCamera(true);
+    } finally {
+      setCameraLoading(false);
+    }
+  };
+
+  // Handle camera modal close — send stop-stream request to ESP32-CAM
+  const handleCameraClose = async () => {
+    setShowCamera(false);
+    try {
+      await stopCameraStream();
+    } catch (err) {
+      console.error("Failed to stop camera:", err);
+    }
   };
 
   return (
@@ -123,6 +158,27 @@ export default function App() {
           </div>
         )}
 
+        {/* Camera Error Banner */}
+        {cameraError && !showCamera && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-yellow-500 text-lg">📷</span>
+              <div>
+                <p className="text-yellow-500 font-medium text-sm">Camera connection failed</p>
+                <p className="text-dark-text-muted text-xs mt-0.5">
+                  Check that ESP32-CAM is powered on and connected to WiFi ({ESP32_CAM_IP})
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setCameraError(null)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-yellow-500/15 text-yellow-500 border border-yellow-500/30 hover:bg-yellow-500/25 transition-all"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Loading */}
         {loading && !sensorData.length && (
           <div className="flex items-center justify-center py-20">
@@ -141,7 +197,7 @@ export default function App() {
           <>
             {/* Top Row: Status + Fall Count */}
             <div className="flex flex-wrap items-start gap-6">
-              <StatusBadge isFall={isFall} onVideoClick={handleVideoClick} />
+              <StatusBadge isFall={isFall} onVideoClick={handleVideoClick} cameraLoading={cameraLoading} />
               <FallCounter count={fallCount} />
             </div>
 
@@ -164,7 +220,7 @@ export default function App() {
       {/* Camera Modal */}
       <CameraModal
         isOpen={showCamera}
-        onClose={() => setShowCamera(false)}
+        onClose={handleCameraClose}
         streamUrl={ESP32_STREAM_URL}
       />
     </div>
