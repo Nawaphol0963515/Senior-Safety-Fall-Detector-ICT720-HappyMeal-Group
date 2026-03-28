@@ -155,14 +155,6 @@ static void handle_stream() {
     client.print(response);
 
     while (client.connected() && stream_active) {
-        // Check timeout inside the loop
-        if (millis() - fall_timestamp > STREAM_TIMEOUT_MS) {
-            stream_active = false;
-            ESP_LOGI(TAG, "Stream auto-stopped after timeout");
-            mqtt.publish(MQTT_TOPIC_CAM, "OFF");
-            break;
-        }
-
         camera_fb_t *fb = esp_camera_fb_get();
         if (!fb) {
             ESP_LOGE(TAG, "Stream: capture failed");
