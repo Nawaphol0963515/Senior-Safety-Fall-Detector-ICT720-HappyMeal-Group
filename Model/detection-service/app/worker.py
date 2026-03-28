@@ -57,8 +57,6 @@ class FallWorker:
     def _build_prediction_doc(self, current_doc, pred_result):
         last_row = pred_result["last_row"]
 
-        # confidence follows your current style:
-        # if prediction = 0 and prob_fall is low, confidence becomes high
         return {
             "ax": round(float(last_row["ax"]), 6),
             "ay": round(float(last_row["ay"]), 6),
@@ -95,6 +93,34 @@ class FallWorker:
                 if pred_result["ready"]:
                     pred_doc = self._build_prediction_doc(current_doc, pred_result)
                     pred_col.insert_one(pred_doc)
+
+                    if pred_doc["prediction"] == 1:
+                        logger.warning(
+                            "FALL DETECTED | timestamp=%s | confidence=%s | ax=%.4f ay=%.4f az=%.4f | gx=%.4f gy=%.4f gz=%.4f",
+                            pred_doc["timestamp"],
+                            pred_doc["confidence"],
+                            pred_doc["ax"], pred_doc["ay"], pred_doc["az"],
+                            pred_doc["gx"], pred_doc["gy"], pred_doc["gz"]
+                        )
+                    else:
+                        logger.info(
+                            "Not Fall | timestamp=%s | confidence=%s",
+                            pred_doc["timestamp"],
+                            pred_doc["confidence"]
+                        )
+                else:
+                    logger.info(
+                        "Prediction skipped | raw_id=%s | reason=%s",
+                        str(current_doc["_id"]),
+                        pred_result.get("reason", "unknown")
+                    )
+            else:
+                logger.info(
+                    "Not enough rows yet | raw_id=%s | have=%s need=%s",
+                    str(current_doc["_id"]),
+                    len(window_docs),
+                    self.window_size
+                )
 
             set_state(WORKER_NAME, str(current_doc["_id"]))
             processed += 1
