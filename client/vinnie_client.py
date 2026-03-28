@@ -22,7 +22,7 @@ MONGO_URL = f"mongodb+srv://{username}:{password}@happymeal.oen73dn.mongodb.net/
 client = MongoClient(MONGO_URL, tlsCAFile=certifi.where())
 
 db = client["happymeal_db"]
-collection = db["sensor_data"]
+collection = db["raw_data"] # Previously it is db["sensor_data"]
 
 print("Connected to MongoDB!")
 
