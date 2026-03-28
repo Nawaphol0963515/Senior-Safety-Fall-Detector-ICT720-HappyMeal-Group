@@ -11,12 +11,10 @@ import {
   fetchLatest,
   startCameraStream,
   stopCameraStream,
-  fetchCameraStatus,
 } from "@/api/client";
 import type { SensorReading, DailyStats } from "@/api/client";
 
-// ⚠️ Change this to your ESP32-CAM's IP address
-const ESP32_CAM_IP = "172.20.10.2";
+const ESP32_CAM_IP = import.meta.env.VITE_ESP32_CAM_IP ?? "172.20.10.2";
 const ESP32_STREAM_URL = `http://${ESP32_CAM_IP}/stream`;
 
 export default function App() {

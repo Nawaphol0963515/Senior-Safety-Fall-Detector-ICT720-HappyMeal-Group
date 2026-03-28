@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: ./frontend/fall-detection-frontend/backend
+    ports:
+      - "5002:5002"
+    environment:
+      - ESP32_CAM_IP=${ESP32_CAM_IP:-172.20.10.2}
+      - MONGO_USERNAME=${MONGO_USERNAME:-happymeal_db_admin}
+      - MONGO_PASSWORD=${MONGO_PASSWORD:-Happymeal1234}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend/fall-detection-frontend
+      args:
+        - VITE_ESP32_CAM_IP=${ESP32_CAM_IP:-172.20.10.2}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

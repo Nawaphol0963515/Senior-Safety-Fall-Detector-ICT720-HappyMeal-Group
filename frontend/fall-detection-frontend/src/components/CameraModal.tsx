@@ -11,11 +11,13 @@ export default function CameraModal({ isOpen, onClose, streamUrl }: CameraModalP
   const [streamError, setStreamError] = useState(false);
   const [streamLoaded, setStreamLoaded] = useState(false);
 
-  // Reset state when modal opens
+  // Reset state when modal opens, then assume loaded after 2s if no error
   useEffect(() => {
     if (isOpen) {
       setStreamError(false);
       setStreamLoaded(false);
+      const timer = setTimeout(() => setStreamLoaded(true), 2000);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -75,7 +77,7 @@ export default function CameraModal({ isOpen, onClose, streamUrl }: CameraModalP
           )}
 
           <img
-            src={streamUrl + "?" + Date.now()}
+            src={streamUrl}
             alt="ESP32-CAM Live Stream"
             className={`w-full h-full object-contain ${streamError ? "hidden" : ""}`}
             onLoad={() => setStreamLoaded(true)}

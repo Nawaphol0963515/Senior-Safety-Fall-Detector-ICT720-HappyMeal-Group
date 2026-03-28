@@ -1,0 +1,5 @@
+mock_sensor_data.json
+venv/
+__pycache__/
+*.pyc
+node_modules/

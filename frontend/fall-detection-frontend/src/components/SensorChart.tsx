@@ -109,17 +109,19 @@ export default function SensorChart({ data }: SensorChartProps) {
     return filtered;
   }, [data, tab, startHour, endHour, startDate, endDate, zoomLeft, zoomRight]);
 
-  const handleMouseDown = useCallback((e: { activeLabel?: string }) => {
-    if (e?.activeLabel) {
+  const handleMouseDown = useCallback((e: { activeLabel?: string | number }) => {
+    const label = e?.activeLabel != null ? String(e.activeLabel) : null;
+    if (label) {
       isDragging.current = true;
-      setRefAreaLeft(e.activeLabel);
+      setRefAreaLeft(label);
       setRefAreaRight(null);
     }
   }, []);
 
-  const handleMouseMove = useCallback((e: { activeLabel?: string }) => {
-    if (isDragging.current && e?.activeLabel) {
-      setRefAreaRight(e.activeLabel);
+  const handleMouseMove = useCallback((e: { activeLabel?: string | number }) => {
+    const label = e?.activeLabel != null ? String(e.activeLabel) : null;
+    if (isDragging.current && label) {
+      setRefAreaRight(label);
     }
   }, []);
 

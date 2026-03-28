@@ -52,8 +52,7 @@ def main():
         "diff_acc": round(random.uniform(0, 3), 4),
         "diff_gyro": round(random.uniform(0, 1), 4),
         "diff_time": 30,
-        "prediction": 0,
-        # "prediction": 1 if is_fall else 0,
+        "prediction": 1 if is_fall else 0,
         "confidence": random.randint(85, 99),
         "timestamp": datetime.utcnow()
     }

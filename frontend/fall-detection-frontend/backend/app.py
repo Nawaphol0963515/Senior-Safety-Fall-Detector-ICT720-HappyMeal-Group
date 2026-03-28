@@ -48,8 +48,8 @@ def _get_mongo_collection():
     import certifi
     from pymongo import MongoClient
 
-    username = "happymeal_db_admin"
-    password = "Happymeal1234"
+    username = os.environ.get("MONGO_USERNAME", "happymeal_db_admin")
+    password = os.environ.get("MONGO_PASSWORD", "Happymeal1234")
     url = f"mongodb+srv://{username}:{password}@happymeal.oen73dn.mongodb.net/"
     client = MongoClient(url, tlsCAFile=certifi.where())
     return client["happymeal_db"]["sensor_data"]
@@ -219,7 +219,7 @@ def camera_status():
 def camera_start():
     """Start camera stream on ESP32-CAM."""
     try:
-        resp = http_requests.get(f"{ESP32_CAM_BASE}/start-stream", timeout=5)
+        resp = http_requests.get(f"{ESP32_CAM_BASE}/start-stream", timeout=15)
         return jsonify(resp.json()), resp.status_code
     except http_requests.exceptions.RequestException as e:
         return jsonify({
@@ -232,7 +232,7 @@ def camera_start():
 def camera_stop():
     """Stop camera stream on ESP32-CAM."""
     try:
-        resp = http_requests.get(f"{ESP32_CAM_BASE}/stop-stream", timeout=5)
+        resp = http_requests.get(f"{ESP32_CAM_BASE}/stop-stream", timeout=15)
         return jsonify(resp.json()), resp.status_code
     except http_requests.exceptions.RequestException as e:
         return jsonify({
