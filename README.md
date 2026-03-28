@@ -35,17 +35,16 @@ A reduction in emergency response times for elderly falls, providing peace of mi
 ## **User Stories:**
 |As a| I want to                           |So that          |
 |---|------------------------------------|-------------------|
-|Elderly person living alone| want a system that automatically calls for help if I fall and cannot get up |so I can feel safe maintaining my independence|
-|a family member living in another city or country| I want to receive an immediate notification on my phone if my parent falls |so I can ensure they get help right away|
-|a local caregiver or emergency responder|I want to view a live camera stream when an alert is triggered|so I can assess the severity of the fall and dispatch the appropriate medical assistance|
+|Elderly person living alone| call for help automatically if I fall and cannot get up |I can feel safe maintaining my independence|
+|Family member living in another city or country| receive an immediate notification on my phone if my parent falls |I can ensure they get help right away|
+|Local caregiver or emergency responder|view a live camera stream when an alert is triggered|I can assess the severity of the fall and dispatch the appropriate medical assistance|
 
 ## Software models
 ### Software stack
 Hardware layer with ESP32s/MPU6050 → Protocol layer with MQTT/HTTP → Backend layer with Python/AI Frameworks → Frontend layer with Web/App frameworks
 ![Software Stack](.png)
 ### Sequence diagram
-Nampai's Sensor reads data → Vinnie's Client pushes to Server → Ben's AI evaluates data. IF FALL = TRUE → Poom's Camera activates & Baitei's UI updates to FALL/Triggers Alert
-![Sequence Diagram](.png)
+<img width="1920" height="800" alt="SequenceDiagram" src="https://github.com/user-attachments/assets/e467a1c8-32bf-4b5f-8727-1358002121aa" />
 
 ## Future Work:
  - Smart Home Integration: Allowing the system to automatically unlock the front door for emergency responders if a critical fall is detected.
