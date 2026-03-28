@@ -1,10 +1,12 @@
 from pymongo import MongoClient, ASCENDING
+import certifi
+
 from app.config import (
     MONGO_URI, MONGO_DB, RAW_COLLECTION, PRED_COLLECTION,
     STATE_COLLECTION
 )
 
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client[MONGO_DB]
 
 raw_col = db[RAW_COLLECTION]
@@ -12,8 +14,8 @@ pred_col = db[PRED_COLLECTION]
 state_col = db[STATE_COLLECTION]
 
 def init_indexes():
-    pred_col.create_index([("source_raw_id", ASCENDING)], unique=True)
     raw_col.create_index([("timestamp", ASCENDING)])
+    pred_col.create_index([("timestamp", ASCENDING)])
     state_col.create_index([("_id", ASCENDING)], unique=True)
 
 def get_state(worker_name: str):

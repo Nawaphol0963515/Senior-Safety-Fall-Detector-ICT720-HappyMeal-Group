@@ -18,14 +18,12 @@ class FallModelService:
         df = raw_window_df.copy().reset_index(drop=True)
         df = add_derived_features(df)
 
-        # Skip broken windows with huge time gap
         if (df["diff_time"].iloc[1:] > self.cfg["max_gap_ms"]).any():
             return {"ready": False, "reason": "window gap too large"}
 
         feature_dict = window_to_feature_vector(df, self.cfg["base_feature_cols"])
         x_df = pd.DataFrame([feature_dict])[self.cfg["feature_names"]]
 
-        # Use .values to avoid sklearn feature-name warning
         prob_fall = float(self.model.predict_proba(x_df.values)[0, 1])
         pred = 1 if prob_fall >= self.cfg["best_threshold"] else 0
 

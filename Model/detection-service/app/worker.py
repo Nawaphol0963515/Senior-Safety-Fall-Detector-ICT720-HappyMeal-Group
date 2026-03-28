@@ -1,7 +1,6 @@
 import logging
 from bson import ObjectId
 import pandas as pd
-from pymongo.errors import DuplicateKeyError
 
 from app.config import (
     RAW_STREAM_FIELD, WORKER_NAME, BATCH_SIZE
@@ -29,7 +28,6 @@ class FallWorker:
     def _get_window_docs_for_current(self, current_doc):
         query = {"_id": {"$lte": current_doc["_id"]}}
 
-        # If later you add device_id or stream_id, set RAW_STREAM_FIELD=device_id in .env
         if RAW_STREAM_FIELD and RAW_STREAM_FIELD in current_doc:
             query[RAW_STREAM_FIELD] = current_doc[RAW_STREAM_FIELD]
 
@@ -59,9 +57,9 @@ class FallWorker:
     def _build_prediction_doc(self, current_doc, pred_result):
         last_row = pred_result["last_row"]
 
-        out = {
-            "source_raw_id": current_doc["_id"],
-            "tstamp": current_doc.get("tstamp"),
+        # confidence follows your current style:
+        # if prediction = 0 and prob_fall is low, confidence becomes high
+        return {
             "ax": round(float(last_row["ax"]), 6),
             "ay": round(float(last_row["ay"]), 6),
             "az": round(float(last_row["az"]), 6),
@@ -73,21 +71,12 @@ class FallWorker:
             "mag_gyro": round(float(last_row["mag_gyro"]), 6),
             "diff_acc": round(float(last_row["diff_acc"]), 6),
             "diff_gyro": round(float(last_row["diff_gyro"]), 6),
-            "diff_time": round(float(last_row["diff_time"]), 6),
+            "diff_time": int(round(float(last_row["diff_time"]))),
 
             "prediction": int(pred_result["prediction"]),
-            "confidence": pred_result["confidence"],      # predicted-class confidence (%)
-            "prob_fall": pred_result["prob_fall"],        # optional but useful
-            "threshold": pred_result["threshold"],
-            "window_size": pred_result["window_size"],
-
+            "confidence": int(round(pred_result["confidence"])),
             "timestamp": current_doc.get("timestamp")
         }
-
-        if RAW_STREAM_FIELD and RAW_STREAM_FIELD in current_doc:
-            out[RAW_STREAM_FIELD] = current_doc[RAW_STREAM_FIELD]
-
-        return out
 
     def run_once(self):
         new_docs = self._get_new_raw_docs()
@@ -105,11 +94,7 @@ class FallWorker:
 
                 if pred_result["ready"]:
                     pred_doc = self._build_prediction_doc(current_doc, pred_result)
-
-                    try:
-                        pred_col.insert_one(pred_doc)
-                    except DuplicateKeyError:
-                        pass
+                    pred_col.insert_one(pred_doc)
 
             set_state(WORKER_NAME, str(current_doc["_id"]))
             processed += 1

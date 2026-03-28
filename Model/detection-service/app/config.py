@@ -10,7 +10,6 @@ RAW_COLLECTION = os.getenv("RAW_COLLECTION", "raw_data")
 PRED_COLLECTION = os.getenv("PRED_COLLECTION", "sensor_data")
 STATE_COLLECTION = os.getenv("STATE_COLLECTION", "model_worker_state")
 
-# Optional field if later you have multiple devices, e.g. device_id
 RAW_STREAM_FIELD = os.getenv("RAW_STREAM_FIELD", "").strip()
 
 WORKER_NAME = os.getenv("WORKER_NAME", "fall_model_worker")
