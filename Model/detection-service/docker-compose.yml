@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  fall-model-worker:
+    build: .
+    container_name: fall-model-worker
+    env_file:
+      - .env
+    restart: unless-stopped
