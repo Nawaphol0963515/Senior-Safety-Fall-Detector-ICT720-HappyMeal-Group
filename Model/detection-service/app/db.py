@@ -16,7 +16,8 @@ state_col = db[STATE_COLLECTION]
 def init_indexes():
     raw_col.create_index([("timestamp", ASCENDING)])
     pred_col.create_index([("timestamp", ASCENDING)])
-    state_col.create_index([("_id", ASCENDING)], unique=True)
+    # Do NOT create _id index manually for state_col
+    # MongoDB already creates _id automatically
 
 def get_state(worker_name: str):
     return state_col.find_one({"_id": worker_name})
