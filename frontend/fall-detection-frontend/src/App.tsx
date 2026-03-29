@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import FallCounter from "@/components/FallCounter";
 import SensorChart from "@/components/SensorChart";
@@ -26,43 +26,63 @@ export default function App() {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const hasLoadedOnce = useRef(false);
+  const lastPrediction = useRef<number | null>(null);
+
+  const loadAllData = useCallback(async () => {
+    const now = new Date();
+    // Start from local midnight so "Today" tab shows all data from today
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const [sensor, stats] = await Promise.all([
+      fetchSensorData(todayStart.toISOString(), now.toISOString()),
+      fetchDailyStats(),
+    ]);
+    setSensorData(sensor);
+    setDailyStats(stats);
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!hasLoadedOnce.current) setLoading(true);
       setError(null);
 
-      // Fetch today's sensor data (last 2 hours)
-      const now = new Date();
-      const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+      const latestReading = await fetchLatest();
 
-      const [sensor, stats, latestReading] = await Promise.all([
-        fetchSensorData(twoHoursAgo.toISOString(), now.toISOString()),
-        fetchDailyStats(),
-        fetchLatest(),
-      ]);
-
-      setSensorData(sensor);
-      setDailyStats(stats);
+      // Always update the status badge with the latest reading
       setLatest(latestReading);
+
+      const newPrediction = latestReading?.prediction ?? null;
+
+      // Only re-fetch full chart data on first load or when fall status flips (0↔1)
+      // Ignore null (no data) to avoid oscillation when readings are intermittent
+      const predictionChanged = newPrediction !== null && newPrediction !== lastPrediction.current;
+
+      if (!hasLoadedOnce.current || predictionChanged) {
+        await loadAllData();
+        if (newPrediction !== null) lastPrediction.current = newPrediction;
+        hasLoadedOnce.current = true;
+      }
     } catch (err) {
       console.error("Failed to load data:", err);
       setError(err instanceof Error ? err.message : "Failed to connect to API");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadAllData]);
 
   useEffect(() => {
     loadData();
 
-    // Auto-refresh every 5 seconds
+    // Poll latest every 5 seconds — full data only refreshes when new data arrives
     const interval = setInterval(loadData, 5_000);
     return () => clearInterval(interval);
   }, [loadData]);
 
   const isFall = latest?.prediction === 1;
-  const fallCount = sensorData.filter((d) => d.prediction === 1).length;
+  // Use today's count from dailyStats (accurate, covers full day)
+  const todayDate = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+  const fallCount = dailyStats.find((d) => d.date === todayDate)?.fall_count ?? 0;
 
   // Handle camera button click — send start-stream request to ESP32-CAM
   const handleVideoClick = async () => {

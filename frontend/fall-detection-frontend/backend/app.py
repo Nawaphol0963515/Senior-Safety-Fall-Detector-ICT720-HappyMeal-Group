@@ -9,7 +9,7 @@ Fall Detection Backend API
 import json
 import os
 import requests as http_requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from collections import defaultdict
 
 from flask import Flask, jsonify, request
@@ -84,7 +84,10 @@ def get_sensor_data():
         results = []
         for doc in cursor:
             if isinstance(doc.get("timestamp"), datetime):
-                doc["timestamp"] = doc["timestamp"].isoformat() + "Z"
+                ts = doc["timestamp"]
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+                doc["timestamp"] = ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
             results.append(doc)
         return jsonify(results)
 
@@ -191,7 +194,10 @@ def get_latest():
         collection = _get_mongo_collection()
         doc = collection.find_one({}, {"_id": 0}, sort=[("timestamp", -1)])
         if doc and isinstance(doc.get("timestamp"), datetime):
-            doc["timestamp"] = doc["timestamp"].isoformat() + "Z"
+            ts = doc["timestamp"]
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            doc["timestamp"] = ts.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
         return jsonify(doc or {})
 
     data = _load_json_data()

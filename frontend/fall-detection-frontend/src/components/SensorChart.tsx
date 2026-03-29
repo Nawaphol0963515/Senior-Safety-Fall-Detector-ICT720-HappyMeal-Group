@@ -10,6 +10,7 @@ import {
   ReferenceArea,
 } from "recharts";
 import type { SensorReading } from "@/api/client";
+import { fetchSensorData } from "@/api/client";
 
 type TabMode = "today" | "all";
 
@@ -36,6 +37,10 @@ function formatTooltipTime(iso: string) {
 export default function SensorChart({ data }: SensorChartProps) {
   const [tab, setTab] = useState<TabMode>("today");
 
+  // "all" tab: fetches its own data from the API
+  const [allData, setAllData] = useState<SensorReading[]>([]);
+  const [allLoading, setAllLoading] = useState(false);
+
   // Date range for "all" tab
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
@@ -46,23 +51,30 @@ export default function SensorChart({ data }: SensorChartProps) {
     () => new Date().toISOString().slice(0, 10)
   );
 
-  // Time range for "today" tab (default 1 hr)
-  const [startHour, setStartHour] = useState(() => {
-    const d = new Date();
-    d.setHours(d.getHours() - 1);
-    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  });
+  // Fetch data for "all" tab whenever date range changes
+  useEffect(() => {
+    if (tab !== "all") return;
+    setAllLoading(true);
+    // Use local midnight so date range matches local timezone, not UTC
+    const localStart = new Date(startDate + "T00:00:00");
+    const localEnd = new Date(endDate + "T23:59:59");
+    fetchSensorData(localStart.toISOString(), localEnd.toISOString())
+      .then(setAllData)
+      .catch(console.error)
+      .finally(() => setAllLoading(false));
+  }, [tab, startDate, endDate]);
+
+  // Time range for "today" tab (default: full day 00:00 → current time)
+  const [startHour, setStartHour] = useState("00:00");
   const [endHour, setEndHour] = useState(() => {
     const d = new Date();
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   });
 
-  // Auto-slide time window: update start/end to follow current time
+  // Slide end time forward to follow current time (start stays at 00:00)
   useEffect(() => {
     if (tab === "today") {
       const now = new Date();
-      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-      setStartHour(`${String(oneHourAgo.getHours()).padStart(2, "0")}:${String(oneHourAgo.getMinutes()).padStart(2, "0")}`);
       setEndHour(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
     }
   }, [data, tab]);
@@ -76,24 +88,23 @@ export default function SensorChart({ data }: SensorChartProps) {
 
   // Filter data based on tab and range
   const filteredData = useMemo(() => {
-    let filtered = data;
+    let filtered: SensorReading[];
 
     if (tab === "today") {
-      const today = new Date().toISOString().slice(0, 10);
+      // Use local date (en-CA gives YYYY-MM-DD) to avoid UTC vs local mismatch
+      const today = new Date().toLocaleDateString("en-CA");
       const [sh, sm] = startHour.split(":").map(Number);
       const [eh, em] = endHour.split(":").map(Number);
 
       filtered = data.filter((d) => {
         const dt = new Date(d.timestamp);
-        if (dt.toISOString().slice(0, 10) !== today) return false;
+        if (dt.toLocaleDateString("en-CA") !== today) return false;
         const mins = dt.getHours() * 60 + dt.getMinutes();
         return mins >= sh * 60 + sm && mins <= eh * 60 + em;
       });
     } else {
-      filtered = data.filter((d) => {
-        const dateStr = d.timestamp.slice(0, 10);
-        return dateStr >= startDate && dateStr <= endDate;
-      });
+      // "all" tab uses its own fetched data, already scoped to the date range
+      filtered = allData;
     }
 
     // Apply zoom
@@ -107,7 +118,7 @@ export default function SensorChart({ data }: SensorChartProps) {
     }
 
     return filtered;
-  }, [data, tab, startHour, endHour, startDate, endDate, zoomLeft, zoomRight]);
+  }, [data, allData, tab, startHour, endHour, zoomLeft, zoomRight]);
 
   const handleMouseDown = useCallback((e: { activeLabel?: string | number }) => {
     const label = e?.activeLabel != null ? String(e.activeLabel) : null;
@@ -252,7 +263,16 @@ export default function SensorChart({ data }: SensorChartProps) {
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={350}>
+      {allLoading && (
+        <div className="flex items-center justify-center h-[350px] text-dark-text-muted text-sm gap-2">
+          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          Loading...
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={350} style={{ display: allLoading ? "none" : undefined }}>
         <LineChart
           data={filteredData}
           onMouseDown={handleMouseDown}

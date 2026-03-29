@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 import paho.mqtt.client as mqtt
 from pymongo import MongoClient
@@ -49,7 +49,7 @@ def on_message(client, userdata, msg):
         # ==============================
         # ADD TIMESTAMP
         # ==============================
-        data["timestamp"] = datetime.now()
+        data["timestamp"] = datetime.now(timezone.utc)
 
         # ==============================
         # SAVE TO MONGODB
