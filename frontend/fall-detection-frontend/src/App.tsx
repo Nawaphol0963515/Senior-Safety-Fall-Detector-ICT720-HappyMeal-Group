@@ -8,7 +8,6 @@ import CameraModal from "@/components/CameraModal";
 import {
   fetchSensorData,
   fetchDailyStats,
-  fetchLatest,
   startCameraStream,
   stopCameraStream,
 } from "@/api/client";
@@ -20,56 +19,36 @@ const ESP32_STREAM_URL = `http://${ESP32_CAM_IP}/stream`;
 export default function App() {
   const [sensorData, setSensorData] = useState<SensorReading[]>([]);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
-  const [latest, setLatest] = useState<SensorReading | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const hasLoadedOnce = useRef(false);
-  const lastPrediction = useRef<number | null>(null);
-
-  const loadAllData = useCallback(async () => {
-    const now = new Date();
-    // Start from local midnight so "Today" tab shows all data from today
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-    const [sensor, stats] = await Promise.all([
-      fetchSensorData(todayStart.toISOString(), now.toISOString()),
-      fetchDailyStats(),
-    ]);
-    setSensorData(sensor);
-    setDailyStats(stats);
-  }, []);
 
   const loadData = useCallback(async () => {
     try {
       if (!hasLoadedOnce.current) setLoading(true);
       setError(null);
 
-      const latestReading = await fetchLatest();
+      const now = new Date();
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
 
-      // Always update the status badge with the latest reading
-      setLatest(latestReading);
-
-      const newPrediction = latestReading?.prediction ?? null;
-
-      // Only re-fetch full chart data on first load or when fall status flips (0↔1)
-      // Ignore null (no data) to avoid oscillation when readings are intermittent
-      const predictionChanged = newPrediction !== null && newPrediction !== lastPrediction.current;
-
-      if (!hasLoadedOnce.current || predictionChanged) {
-        await loadAllData();
-        if (newPrediction !== null) lastPrediction.current = newPrediction;
-        hasLoadedOnce.current = true;
-      }
+      const [sensor, stats] = await Promise.all([
+        fetchSensorData(todayStart.toISOString(), now.toISOString()),
+        fetchDailyStats(),
+      ]);
+      setSensorData(sensor);
+      setDailyStats(stats);
+      hasLoadedOnce.current = true;
     } catch (err) {
       console.error("Failed to load data:", err);
       setError(err instanceof Error ? err.message : "Failed to connect to API");
     } finally {
       setLoading(false);
     }
-  }, [loadAllData]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -79,10 +58,14 @@ export default function App() {
     return () => clearInterval(interval);
   }, [loadData]);
 
-  const isFall = latest?.prediction === 1;
+  // Status derived from the same sensorData as the chart
+  // Require last 2 readings to both be falls to avoid single-spike false positives
+  const last2 = sensorData.slice(-2);
+  const isFall = last2.length === 2 && last2.every((r: SensorReading) => r.prediction === 1);
+
   // Use today's count from dailyStats (accurate, covers full day)
   const todayDate = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
-  const fallCount = dailyStats.find((d) => d.date === todayDate)?.fall_count ?? 0;
+  const fallCount = dailyStats.find((d: DailyStats) => d.date === todayDate)?.fall_count ?? 0;
 
   // Handle camera button click — send start-stream request to ESP32-CAM
   const handleVideoClick = async () => {
