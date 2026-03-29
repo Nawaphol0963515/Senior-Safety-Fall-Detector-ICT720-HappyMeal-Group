@@ -41,7 +41,6 @@ The "Senior Safety Fall Detector" is an IoT-based monitoring system designed to 
 
 ## Software models
 ### Software stack
-Hardware layer with ESP32s/MPU6050 → Protocol layer with MQTT/HTTP → Backend layer with Python/AI Frameworks → Frontend layer with Web/App frameworks
 <img width="1241" height="873" alt="SoftwareStack" src="https://github.com/user-attachments/assets/eb24b8de-a755-4501-b7de-41dad68b0cfb" />
 
 ### Sequence diagram
