@@ -23,9 +23,9 @@ The "Senior Safety Fall Detector" is an IoT-based monitoring system designed to 
  5. Create an intuitive monitoring dashboard: Build a UI that clearly displays the user's current status (FALL / SAFE) for easy monitoring by family or caregivers.
 
 ## **Expected Outcomes:**
-A fully integrated prototype consisting of sensor nodes, an AI processing server, and a monitoring UI.
-A reliable AI classification model capable of distinguishing actual falls from benign events.
-A reduction in emergency response times for elderly falls, providing peace of mind to families across geographical distances.
+ - A fully integrated prototype consisting of sensor nodes, an AI processing server, and a monitoring UI.
+ - A reliable AI classification model capable of distinguishing actual falls from benign events.
+ - A reduction in emergency response times for elderly falls, providing peace of mind to families across geographical distances.
 
 ## **Stakeholder:**
  - Primary: The Elderly (The direct users who require monitoring to maintain safe, independent living).
@@ -42,7 +42,7 @@ A reduction in emergency response times for elderly falls, providing peace of mi
 ## Software models
 ### Software stack
 Hardware layer with ESP32s/MPU6050 → Protocol layer with MQTT/HTTP → Backend layer with Python/AI Frameworks → Frontend layer with Web/App frameworks
-![Software Stack](.png)
+<img width="1920" height="800" alt="SoftwareStack" src="" />
 ### Sequence diagram
 <img width="1920" height="800" alt="SequenceDiagram" src="https://github.com/user-attachments/assets/e467a1c8-32bf-4b5f-8727-1358002121aa" />
 
@@ -50,6 +50,7 @@ Hardware layer with ESP32s/MPU6050 → Protocol layer with MQTT/HTTP → Backend
  - Smart Home Integration: Allowing the system to automatically unlock the front door for emergency responders if a critical fall is detected.
  - Vital Sign Monitoring: Integrating heart rate or blood oxygen sensors to provide a more comprehensive health overview during a fall event.
  - Hardware Miniaturization: Refining the ESP32 and MPU setup into a comfortable, non-intrusive wearable device (like a smart belt or watch).
+ - Model Precision improvement: Retrain the model and evaluate the model to make a precise model that can handle more use cases of the movement.
 
 ## Conclusion
 As Japan and the global population ages, the intersection of AI and IoT becomes crucial for senior care. The Senior Safety Fall Detector bridges the gap between independent living and necessary medical supervision. By accurately detecting falls, minimizing false alarms, and providing immediate visual context to loved ones and caregivers, this project transforms a moment of crisis and silence into a moment of swift, life-saving action.
