@@ -54,6 +54,9 @@ The "Senior Safety Fall Detector" is an IoT-based monitoring system designed to 
 
 ## Conclusion
 As Japan and the global population ages, the intersection of AI and IoT becomes crucial for senior care. The Senior Safety Fall Detector bridges the gap between independent living and necessary medical supervision. By accurately detecting falls, minimizing false alarms, and providing immediate visual context to loved ones and caregivers, this project transforms a moment of crisis and silence into a moment of swift, life-saving action.
+<img width="1408" height="768" alt="Gemini_Generated_Image_nlt8d2nlt8d2nlt8" src="https://github.com/user-attachments/assets/528f4022-1f82-4f78-9e4a-5f99e4c71cff" />
+
+
 
 ## Acknowledgements:
 We would like to express our gratitude to the instructors and teaching assistants of TAIST for their guidance.
