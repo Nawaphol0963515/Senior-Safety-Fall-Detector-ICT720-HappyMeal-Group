@@ -60,3 +60,6 @@ As Japan and the global population ages, the intersection of AI and IoT becomes 
 
 ## Acknowledgements:
 We would like to express our gratitude to the instructors and teaching assistants of TAIST for their guidance.
+<img width="1110" height="960" alt="Gemini_Generated_Image_6x7ayu6x7ayu6x7a" src="https://github.com/user-attachments/assets/c91237c5-43b4-4804-afa5-e7ea1726c726" />
+
+
