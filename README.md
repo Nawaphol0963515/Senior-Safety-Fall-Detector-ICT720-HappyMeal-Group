@@ -44,7 +44,8 @@ The "Senior Safety Fall Detector" is an IoT-based monitoring system designed to 
 <img width="1241" height="873" alt="SoftwareStack" src="https://github.com/user-attachments/assets/eb24b8de-a755-4501-b7de-41dad68b0cfb" />
 
 ### Sequence diagram
-<img width="1920" height="800" alt="SequenceDiagram" src="https://github.com/user-attachments/assets/e467a1c8-32bf-4b5f-8727-1358002121aa" />
+<img width="1849" height="790" alt="SequenceDiagram" src="https://github.com/user-attachments/assets/441be437-4a4f-4cf4-abcc-e5fd10e0cdc6" />
+
 
 ## Future Work:
  - Smart Home Integration: Allowing the system to automatically unlock the front door for emergency responders if a critical fall is detected.
